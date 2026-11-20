@@ -1,0 +1,14 @@
+{
+  // Cloudflare reads this when it builds from GitHub. Keep "name" the same as the Worker's name in Cloudflare.
+  "name": "fernflow",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash",
+    "run_worker_first": ["/", "/index.html"]
+  },
+  "observability": { "enabled": true }
+}
