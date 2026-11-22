@@ -432,7 +432,7 @@ footer{background:var(--green2);color:#B4C7BA;font-size:14.5px}
 <h1>Your social media, growing naturally.</h1>
 <p class="lead">FernFlow plans, posts and answers on your Facebook and Instagram every week, so you can get on with running your business.</p>
 <div class="row"><a class="btn b-gold b-wa" id="h-wa" href="#contact"><svg aria-hidden="true"><use href="#wa"/></svg>Get a free page check</a><a class="btn b-ghost" href="#packages">See packages</a></div>
-<p class="offer"><i aria-hidden="true"></i><span><b>Founding offer:</b> half price on your first month for the first <b id="spots">3</b> businesses.</span></p>
+<p class="offer"><i aria-hidden="true"></i><span><b>Founding offer:</b> half price on your first month for the first <b id="spots">3</b> businesses<span id="offer-end"></span>.</span></p>
 <a class="chip" href="#reviews"><span class="stars" aria-hidden="true"><svg><use href="#st"/></svg><svg><use href="#st"/></svg><svg><use href="#st"/></svg><svg><use href="#st"/></svg><svg><use href="#st"/></svg></span>5.0 from AuroSmart, our first client</a>
 <p class="where">For small businesses in Wilderness, Sedgefield, Knysna and George, in English and Afrikaans.</p>
 </div>
@@ -660,7 +660,8 @@ const SITE = {
   email: "",                // e.g. "hello@fernflow.co.za"; left empty, it's not shown
   instagram: "",            // handle without the @, e.g. "fernflow.gr"; left empty, it's not shown
   facebook: "",             // full link to the Facebook page; left empty, it's not shown
-  spots: 3                  // founding-offer places left (half price first month); 0 hides the offer
+  spots: 3,                 // founding-offer places left (half price first month); 0 hides the offer
+  offerEnds: "2026-12-15"   // last day of the founding offer (year-month-day); after it, the offer hides by itself
 };
 /* views and kpi are EXAMPLE numbers for the growth charts: weekly views after six months,
    then profile visits, messages and new customers a month */
@@ -906,6 +907,9 @@ cio.observe(document.querySelector(".stats"));
 new IntersectionObserver((es, o) => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("go"); o.unobserve(e.target); } }), { threshold: 0.5 }).observe(document.querySelector(".month"));
 document.querySelectorAll(".pkg").forEach(c => cio.observe(c));
 $("spots").textContent = SITE.spots;
+const OFFER = SITE.spots > 0 && (!SITE.offerEnds || Date.now() <= new Date(SITE.offerEnds + "T23:59:59+02:00").getTime());
+const offerDate = SITE.offerEnds ? new Date(SITE.offerEnds + "T12:00:00+02:00").toLocaleDateString("en-ZA", { day: "numeric", month: "long", timeZone: "Africa/Johannesburg" }) : "";
+if (offerDate) $("offer-end").textContent = ", until " + offerDate;
 
 /* ---------- growth chart ---------- */
 const NW = 26, MON = ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov"], YM = 22000;
@@ -1028,7 +1032,7 @@ if (!reduce) {
 const WAL = t => SITE.whatsapp ? "https://wa.me/" + SITE.whatsapp + "?text=" + encodeURIComponent(t) : "#contact";
 $("h-wa").href = WAL("Hi Luzaan! I'd like a free page check for my business.\nRef: FF-HERO");
 $("fab").href = $("mb-wa").href = WAL("Hi Luzaan! I saw the FernFlow website and I'd like to chat about my social media.\nRef: FF-CHAT");
-if (!SITE.spots) document.querySelector(".offer").hidden = true;
+if (!OFFER) document.querySelector(".offer").hidden = true;
 const fab = $("fab"), mbar = $("mbar"), heroEl = document.querySelector(".hero"), ctEl = $("contact");
 const onScroll2 = () => {
   const past = scrollY > heroEl.offsetHeight * 0.6, r = ctEl.getBoundingClientRect(), atContact = r.top < innerHeight * 0.6 && r.bottom > 0;
@@ -1085,7 +1089,7 @@ const planMsg = () => {
   let m = L[0] + (biz ? "\n" + L[1] + biz : "") + "\n" + L[2] + c.p.name + ", " + fmtR(c.p.price) + L[3];
   c.lines.slice(1).forEach(l => { const nm = af ? l.x.af : l.x.name; m += "\n+ " + nm + (l.q ? " × " + l.q : "") + ": " + (l.inc ? L[4] : fmtR(l.a) + (l.once ? L[5] : "")); });
   m += "\n" + L[6] + fmtR(c.month) + L[3] + (c.once ? " (+ " + fmtR(c.once) + L[5] + ")" : "");
-  m += "\n" + L[7] + langT + (SITE.spots ? "\n" + L[8] : "") + "\n" + L[9];
+  m += "\n" + L[7] + langT + (OFFER ? "\n" + L[8] : "") + "\n" + L[9];
   return m;
 };
 const updPlan = () => {
@@ -1097,7 +1101,7 @@ const updPlan = () => {
   $("mini-t").textContent = fmtR(c.month);
   let sub = '';
   if (c.once) sub += '<p><span>Once-off, first month</span><b>' + fmtR(c.once) + '</b></p>';
-  if (SITE.spots) sub += '<p class="fo"><span>First month with the founding offer</span><b>' + fmtR(Math.round(c.month / 2)) + '</b></p>';
+  if (OFFER) sub += '<p class="fo"><span>First month with the founding offer' + (offerDate ? ' (until ' + offerDate + ')' : '') + '</span><b>' + fmtR(Math.round(c.month / 2)) + '</b></p>';
   sub += '<p><span>About ' + fmtR(c.month / 30) + ' a day for a page that\'s always looked after</span></p>';
   $("r-sub").innerHTML = sub;
   EXTRAS.forEach(x => {
